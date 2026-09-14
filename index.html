@@ -113,65 +113,102 @@
     border:1px solid var(--line);
     padding:20px;
     background:rgba(255,255,255,0.28);
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
   }
   .puck-disc{
-    width:64px; height:64px; border-radius:50%;
+    width:88px; height:88px; border-radius:50%;
     background:linear-gradient(135deg, var(--concrete-dark), var(--concrete));
     margin-bottom:16px;
     display:flex; align-items:center; justify-content:center;
-    font-size:0.7rem; color:var(--paper); font-weight:600;
+    font-family:'Fraunces', serif;
+    font-size:0.95rem; color:var(--paper); font-weight:600;
     box-shadow: inset 0 0 0 3px rgba(28,26,23,0.15);
+    cursor:pointer;
+    user-select:none;
+    transition: transform 0.45s cubic-bezier(.2,.8,.2,1);
+    transform-style:preserve-3d;
   }
+  .puck-disc:active{transform:scale(0.94);}
+  .puck-disc.flipping{transform:rotateY(360deg) scale(1.05);}
+  .puck-disc:hover{box-shadow: inset 0 0 0 3px rgba(28,26,23,0.15), 0 0 0 3px rgba(156,61,46,0.35);}
   .puck-card .station{font-size:0.85rem; color:var(--concrete-dark); margin-bottom:4px;}
-  .puck-card .states{font-family:'Fraunces', serif; font-size:1.15rem;}
-
-  /* ---- Log widget ---- */
-  .log-widget{
-    border:1px solid var(--line);
-    padding:28px;
-    background:rgba(255,255,255,0.35);
+  .puck-card .pair{font-size:0.8rem; color:var(--concrete-dark); margin-bottom:10px;}
+  .puck-card .tally{
+    font-size:0.78rem;
+    color:var(--concrete-dark);
+    display:flex;
+    gap:14px;
   }
-  .log-row{
-    display:grid;
-    grid-template-columns:1fr auto auto auto;
-    gap:10px;
-    align-items:center;
-    padding:12px 0;
-    border-bottom:1px solid var(--line);
-  }
-  .log-row:last-child{border-bottom:none;}
-  .log-row .name{font-weight:600;}
-  .log-row button{
+  .puck-card .reach-btn{
+    margin-top:12px;
     font-family:'IBM Plex Sans', sans-serif;
-    font-size:0.8rem;
+    font-size:0.78rem;
     border:1px solid var(--ink);
     background:transparent;
     padding:6px 10px;
     cursor:pointer;
     color:var(--ink);
+    align-self:flex-start;
   }
-  .log-row button.active{background:var(--ink); color:var(--paper);}
-  .log-row .count{font-size:0.8rem; color:var(--concrete-dark); text-align:right; min-width:64px;}
-  .log-add{
-    display:flex; gap:10px; margin-top:20px;
+  .puck-note{font-size:0.82rem; color:var(--concrete-dark); margin-top:20px;}
+
+  .puck-card .edit-btn{
+    margin-top:12px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.75rem;
+    border:none;
+    background:none;
+    color:var(--concrete-dark);
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+    align-self:flex-start;
   }
-  .log-add input{
-    flex:1;
-    padding:10px 12px;
+  .puck-edit-form{
+    margin-top:14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    width:100%;
+  }
+  .puck-edit-form input{
+    padding:8px 10px;
     border:1px solid var(--ink);
     background:var(--paper);
     font-family:'IBM Plex Sans', sans-serif;
-    font-size:0.95rem;
+    font-size:0.85rem;
+    width:100%;
   }
-  .log-add button{
-    padding:10px 18px;
+  .puck-edit-form .edit-row{
+    display:flex;
+    gap:8px;
+  }
+  .puck-edit-form .edit-row input{width:50%;}
+  .puck-edit-form button{
+    align-self:flex-start;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.78rem;
     border:1px solid var(--ink);
     background:var(--ink);
     color:var(--paper);
+    padding:6px 12px;
     cursor:pointer;
-    font-family:'IBM Plex Sans', sans-serif;
   }
-  .log-note{font-size:0.82rem; color:var(--concrete-dark); margin-top:16px;}
+  .add-puck-card{
+    border:1px dashed var(--concrete-dark);
+    padding:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:120px;
+    cursor:pointer;
+    color:var(--concrete-dark);
+    font-size:0.9rem;
+    background:transparent;
+  }
+  .add-puck-card:hover{border-color:var(--ink); color:var(--ink);}
 
   /* ---- Updates / build log ---- */
   .updates-list{border-top:1px solid var(--line);}
@@ -187,6 +224,32 @@
   @media (max-width:520px){
     .update-row{grid-template-columns:1fr;}
     .update-row .date{padding-top:0;}
+  }
+
+  .pattern-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+    gap:14px;
+    margin-top:8px;
+  }
+  .pattern-card{
+    border:1px solid var(--line);
+    padding:16px;
+    background:rgba(255,255,255,0.28);
+  }
+  .pattern-card .station{font-weight:600; margin-bottom:8px;}
+  .pattern-card .stat-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.82rem;
+    color:var(--concrete-dark);
+    padding:3px 0;
+  }
+  .pattern-card .stat-row span:last-child{color:var(--ink);}
+  .pattern-empty{
+    font-size:0.9rem;
+    color:var(--concrete-dark);
+    padding:20px 0;
   }
 
   footer{
@@ -273,6 +336,32 @@
   </div>
 </section>
 
+<div class="reset-block">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Before you flip</span>
+      <h2>Reset</h2>
+    </div>
+    <p>One slow cycle of breath, long enough to move you from reacting to choosing, before you touch anything else on this page.</p>
+    <div class="reset-grid">
+      <div>
+        <div class="breath-disc-wrap">
+          <div class="breath-disc" id="breath-disc">HOLD</div>
+        </div>
+        <div class="breath-controls">
+          <button id="breath-start">Start</button>
+          <button id="breath-stop">Stop</button>
+        </div>
+        <div class="breath-count" id="breath-count">0 cycles</div>
+      </div>
+      <div>
+        <p>In for 4. Hold for 4. Out for 6. The exhale is longer than the inhale on purpose.</p>
+        <p>Run it for three to five cycles, then scroll on.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <section class="tight">
   <div class="wrap">
     <div class="section-head">
@@ -296,13 +385,7 @@
 
 <section class="tight">
   <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">Why it works</span>
-      <h2>Grounding, not gamification</h2>
-    </div>
-    <p>A physical flip is a small act of embodied cognition — the hand does something the mind can register as closure. That's the same mechanism behind a lot of quiet regulation tools: a light switch, a door lock check, a worry stone. The object doesn't do the regulating. It gives the moment a shape you can complete.</p>
-    <p>Placing it at a threshold — the door, the desk, the bed — borrows from how habits actually form: tied to a location and a transition, not a reminder or a willpower decision. You're not being told to focus or rest. You're marking that you already decided to.</p>
-    <p>This isn't a treatment and it doesn't replace one. It's a low-stakes way to add a small, repeatable moment of agency to an ordinary transition — useful on its own terms, whether or not anything is "wrong" to begin with.</p>
+    <p>A flip is a small, complete action — a shape for a moment, nothing more claimed than that.</p>
   </div>
 </section>
 
@@ -312,91 +395,26 @@
       <span class="kicker">The prototype</span>
       <h2>Five pucks, five thresholds</h2>
     </div>
-    <p>Same mold. Same weight. Different jobs. Placed where a real transition already happens in the day — not clustered on one shelf.</p>
-    <div class="pucks">
-      <div class="puck-card">
-        <div class="puck-disc">DOOR</div>
-        <div class="station">Door</div>
-        <div class="states">HERE / GONE</div>
-      </div>
-      <div class="puck-card">
-        <div class="puck-disc">DESK</div>
-        <div class="station">Desk</div>
-        <div class="states">OFF / ON</div>
-      </div>
-      <div class="puck-card">
-        <div class="puck-disc">BED</div>
-        <div class="station">Bedside</div>
-        <div class="states">OPEN / CLOSED</div>
-      </div>
-      <div class="puck-card">
-        <div class="puck-disc">BAG</div>
-        <div class="station">Bag</div>
-        <div class="states">REST / TRAIN</div>
-      </div>
-      <div class="puck-card">
-        <div class="puck-disc">?</div>
-        <div class="station">Unassigned</div>
-        <div class="states">let it tell you</div>
-      </div>
-    </div>
+    <p>Same mold. Same weight. Different jobs. Tap a puck to flip it — the state holds until you flip it again. Edit a puck's name or its two states, or add another for a spot that isn't covered yet.</p>
+    <div class="pucks" id="pucks"></div>
+    <p class="puck-note">Reached = you noticed the puck missing, or wanted it, and it wasn't there.</p>
   </div>
 </section>
 
 <section class="tight">
   <div class="wrap">
     <div class="section-head">
-      <span class="kicker">The 14-day log</span>
-      <h2>Track the gap, not the novelty</h2>
-    </div>
-    <p>For each puck: did you flip it, ignore it, or reach for it when it wasn't there? Tap to log today's entry — this stays on this device, no account, no sync.</p>
-
-    <div class="log-widget">
-      <div id="log-rows"></div>
-      <div class="log-add">
-        <input id="log-add-input" type="text" placeholder="Add a puck / station (e.g. Kitchen)">
-        <button id="log-add-btn">Add</button>
-      </div>
-      <p class="log-note">Flipped = you turned it over. Reached = you noticed its absence or wanted it and it wasn't there. Counts reset only if you clear them.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="section-head">
       <span class="kicker">Build log</span>
-      <h2>Updates</h2>
+      <h2>Usage patterns</h2>
     </div>
-    <div class="updates-list" id="updates-list"></div>
+    <p>This isn't posted to — it writes itself from what actually happens when a puck gets used. No manual entries.</p>
+    <div class="pattern-grid" id="pattern-grid"></div>
+    <div class="section-head" style="margin-top:44px; margin-bottom:16px;">
+      <span class="kicker">Recent activity</span>
+    </div>
+    <div class="updates-list" id="activity-feed"></div>
   </div>
 </section>
-
-<div class="reset-block">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">Before you flip</span>
-      <h2>Reset</h2>
-    </div>
-    <p>The puck asks for one decision, not a stream of them. This is the same idea in your body: one slow cycle of breath, long enough to move you from reacting to choosing, before you touch the object.</p>
-    <div class="reset-grid">
-      <div>
-        <div class="breath-disc-wrap">
-          <div class="breath-disc" id="breath-disc">HOLD</div>
-        </div>
-        <div class="breath-controls">
-          <button id="breath-start">Start</button>
-          <button id="breath-stop">Stop</button>
-        </div>
-        <div class="breath-count" id="breath-count">0 cycles</div>
-      </div>
-      <div>
-        <p>In for 4. Hold for 4. Out for 6. The exhale is longer than the inhale on purpose — it's the part that tells your nervous system the moment has passed and you're safe to act deliberately, not reflexively.</p>
-        <p>Run it for three to five cycles. Then flip the puck, or don't. Either way, you'll be choosing instead of reaching.</p>
-      </div>
-    </div>
-  </div>
-</div>
 
 <footer>
   <div class="wrap">
@@ -405,85 +423,211 @@
 </footer>
 
 <script>
-  // ---- Log widget (localStorage) ----
-  const DEFAULT_PUCKS = ['Door','Desk','Bedside','Bag'];
-  const STORE_KEY = 'taps-log-v1';
+  // ---- Pucks: real state, flipped by tapping, fully editable ----
+  const DEFAULT_PUCKS = [
+    { id:'door', station:'Door', states:['HERE','GONE'], face:0, flips:0, reached:0 },
+    { id:'desk', station:'Desk', states:['OFF','ON'], face:0, flips:0, reached:0 },
+    { id:'bedside', station:'Bedside', states:['OPEN','CLOSED'], face:0, flips:0, reached:0 },
+    { id:'bag', station:'Bag', states:['REST','TRAIN'], face:0, flips:0, reached:0 },
+    { id:'blank', station:'Unassigned', states:['A','B'], face:0, flips:0, reached:0 }
+  ];
+  const STORE_KEY = 'taps-pucks-v2';
 
-  function loadState(){
+  function loadPucks(){
     try{
       const raw = localStorage.getItem(STORE_KEY);
       if(raw) return JSON.parse(raw);
     }catch(e){}
-    const initial = {};
-    DEFAULT_PUCKS.forEach(p => initial[p] = {flipped:0, ignored:0, reached:0});
-    return initial;
+    return JSON.parse(JSON.stringify(DEFAULT_PUCKS));
   }
-  function saveState(state){
-    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  function savePucks(list){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(list)); }catch(e){}
   }
 
-  let state = loadState();
+  let pucks = loadPucks();
+  let editingId = null;
 
-  function render(){
-    const container = document.getElementById('log-rows');
-    container.innerHTML = '';
-    Object.keys(state).forEach(name => {
-      const row = document.createElement('div');
-      row.className = 'log-row';
-      row.innerHTML = `
-        <div class="name">${name}</div>
-        <button data-name="${name}" data-action="flipped">Flipped</button>
-        <button data-name="${name}" data-action="ignored">Ignored</button>
-        <button data-name="${name}" data-action="reached">Reached</button>
+  const EVENTS_KEY = 'taps-events-v1';
+  function loadEvents(){
+    try{
+      const raw = localStorage.getItem(EVENTS_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return [];
+  }
+  function saveEvents(list){
+    try{ localStorage.setItem(EVENTS_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function logEvent(puck, action){
+    const events = loadEvents();
+    events.push({ station:puck.station, action, ts:Date.now() });
+    // keep the log from growing without bound
+    while(events.length > 300) events.shift();
+    saveEvents(events);
+  }
+
+  function timeAgo(ts){
+    const diff = Date.now() - ts;
+    const mins = Math.floor(diff / 60000);
+    if(mins < 1) return 'just now';
+    if(mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if(hrs < 24) return hrs + 'h ago';
+    const days = Math.floor(hrs / 24);
+    return days + (days === 1 ? ' day ago' : ' days ago');
+  }
+
+  function renderPatterns(){
+    const grid = document.getElementById('pattern-grid');
+    const feed = document.getElementById('activity-feed');
+    const events = loadEvents();
+
+    grid.innerHTML = '';
+    pucks.forEach(p => {
+      const stationEvents = events.filter(e => e.station === p.station);
+      const flips = stationEvents.filter(e => e.action === 'flip').length;
+      const reaches = stationEvents.filter(e => e.action === 'reach').length;
+      const last = stationEvents[stationEvents.length - 1];
+      const card = document.createElement('div');
+      card.className = 'pattern-card';
+      card.innerHTML = `
+        <div class="station">${p.station}</div>
+        <div class="stat-row"><span>Flips</span><span>${flips}</span></div>
+        <div class="stat-row"><span>Reaches</span><span>${reaches}</span></div>
+        <div class="stat-row"><span>Last activity</span><span>${last ? timeAgo(last.ts) : '—'}</span></div>
       `;
-      container.appendChild(row);
+      grid.appendChild(card);
+    });
 
-      const countEl = document.createElement('div');
-      countEl.className = 'count';
-      const s = state[name];
-      countEl.textContent = `${s.flipped} flip · ${s.ignored} skip · ${s.reached} reach`;
-      row.appendChild(countEl);
+    feed.innerHTML = '';
+    if(events.length === 0){
+      feed.innerHTML = '<p class="pattern-empty">No activity yet — flip a puck above to start the log.</p>';
+      return;
+    }
+    events.slice().reverse().slice(0, 12).forEach(e => {
+      const row = document.createElement('div');
+      row.className = 'update-row';
+      const verb = e.action === 'flip' ? 'flipped' : 'logged as reached for';
+      row.innerHTML = `<div class="date">${timeAgo(e.ts)}</div><div><h3>${e.station} ${verb}</h3></div>`;
+      feed.appendChild(row);
     });
   }
 
+  function renderPucks(){
+    const container = document.getElementById('pucks');
+    container.innerHTML = '';
+
+    pucks.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'puck-card';
+
+      if(editingId === p.id){
+        card.innerHTML = `
+          <div class="puck-disc" data-id="${p.id}">${p.states[p.face]}</div>
+          <div class="puck-edit-form">
+            <input type="text" data-field="station" data-id="${p.id}" value="${p.station}" placeholder="Station name">
+            <div class="edit-row">
+              <input type="text" data-field="state0" data-id="${p.id}" value="${p.states[0]}" placeholder="State A">
+              <input type="text" data-field="state1" data-id="${p.id}" value="${p.states[1]}" placeholder="State B">
+            </div>
+            <button data-save="${p.id}">Save</button>
+          </div>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="puck-disc" data-id="${p.id}">${p.states[p.face]}</div>
+          <div class="station">${p.station}</div>
+          <div class="pair">${p.states[0]} / ${p.states[1]}</div>
+          <div class="tally">
+            <span>${p.flips} flip${p.flips === 1 ? '' : 's'}</span>
+            <span>${p.reached} reach${p.reached === 1 ? '' : 'es'}</span>
+          </div>
+          <button class="reach-btn" data-reach="${p.id}">Log a reach</button>
+          <button class="edit-btn" data-edit="${p.id}">Edit name / states</button>
+        `;
+      }
+      container.appendChild(card);
+    });
+
+    const addCard = document.createElement('div');
+    addCard.className = 'add-puck-card';
+    addCard.id = 'add-puck-btn';
+    addCard.textContent = '+ Add a puck';
+    container.appendChild(addCard);
+  }
+
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-action]');
-    if(!btn) return;
-    const name = btn.dataset.name;
-    const action = btn.dataset.action;
-    if(!state[name]) state[name] = {flipped:0, ignored:0, reached:0};
-    state[name][action] += 1;
-    saveState(state);
-    render();
+    const disc = e.target.closest('.puck-disc');
+    if(disc && editingId === null){
+      const id = disc.dataset.id;
+      const p = pucks.find(x => x.id === id);
+      disc.classList.add('flipping');
+      setTimeout(() => {
+        p.face = p.face === 0 ? 1 : 0;
+        p.flips += 1;
+        logEvent(p, 'flip');
+        savePucks(pucks);
+        renderPucks();
+        renderPatterns();
+      }, 220);
+      return;
+    }
+
+    const reachBtn = e.target.closest('button[data-reach]');
+    if(reachBtn){
+      const p = pucks.find(x => x.id === reachBtn.dataset.reach);
+      p.reached += 1;
+      logEvent(p, 'reach');
+      savePucks(pucks);
+      renderPucks();
+      renderPatterns();
+      return;
+    }
+
+    const editBtn = e.target.closest('button[data-edit]');
+    if(editBtn){
+      editingId = editBtn.dataset.edit;
+      renderPucks();
+      return;
+    }
+
+    const saveBtn = e.target.closest('button[data-save]');
+    if(saveBtn){
+      const id = saveBtn.dataset.save;
+      const p = pucks.find(x => x.id === id);
+      const oldStation = p.station;
+      const form = saveBtn.closest('.puck-edit-form');
+      const station = form.querySelector('input[data-field="station"]').value.trim();
+      const state0 = form.querySelector('input[data-field="state0"]').value.trim();
+      const state1 = form.querySelector('input[data-field="state1"]').value.trim();
+      if(station) p.station = station;
+      if(state0) p.states[0] = state0;
+      if(state1) p.states[1] = state1;
+      if(station && station !== oldStation){
+        const events = loadEvents();
+        events.forEach(ev => { if(ev.station === oldStation) ev.station = station; });
+        saveEvents(events);
+      }
+      editingId = null;
+      savePucks(pucks);
+      renderPucks();
+      renderPatterns();
+      return;
+    }
+
+    const addBtn = e.target.closest('#add-puck-btn');
+    if(addBtn){
+      const id = 'puck-' + Date.now();
+      pucks.push({ id, station:'New station', states:['A','B'], face:0, flips:0, reached:0 });
+      editingId = id;
+      savePucks(pucks);
+      renderPucks();
+      renderPatterns();
+    }
   });
 
-  document.getElementById('log-add-btn').addEventListener('click', () => {
-    const input = document.getElementById('log-add-input');
-    const name = input.value.trim();
-    if(!name) return;
-    if(!state[name]) state[name] = {flipped:0, ignored:0, reached:0};
-    input.value = '';
-    saveState(state);
-    render();
-  });
-
-  render();
-
-  // ---- Build log / updates ----
-  // Edit this array directly to post new updates — no CMS, no feed.
-  const UPDATES = [
-    { date:'Day 0', title:'Five pucks cast', body:'Same mold, same mix, same cure time. Weighed dry before placement to remove weight as a confound.' },
-    { date:'Day 0', title:'Placed at thresholds', body:'Door, desk, bedside, bag, and one unlabeled puck left to declare its own job.' },
-    { date:'Day 14', title:'Log review', body:'Whichever puck leaves a gap when pulled is the candidate for an e-ink version. The rest stay concrete.' }
-  ];
-
-  const list = document.getElementById('updates-list');
-  UPDATES.forEach(u => {
-    const row = document.createElement('div');
-    row.className = 'update-row';
-    row.innerHTML = `<div class="date">${u.date}</div><div><h3>${u.title}</h3><p>${u.body}</p></div>`;
-    list.appendChild(row);
-  });
+  renderPucks();
+  renderPatterns();
 
   // ---- Breath widget: 4 in / 4 hold / 6 out ----
   const disc = document.getElementById('breath-disc');
