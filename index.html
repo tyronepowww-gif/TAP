@@ -532,9 +532,9 @@
   function saveEvents(list){
     try{ localStorage.setItem(EVENTS_KEY, JSON.stringify(list)); }catch(e){}
   }
-  function logEvent(puck, action){
+  function logEvent(puck, action, state){
     const events = loadEvents();
-    events.push({ station:puck.station, action, ts:Date.now() });
+    events.push({ station:puck.station, action, state: state !== undefined ? state : puck.states[puck.face], ts:Date.now() });
     // keep the log from growing without bound
     while(events.length > 300) events.shift();
     saveEvents(events);
@@ -571,14 +571,17 @@
     pucks.forEach(p => {
       const stationEvents = events.filter(e => e.station === p.station);
       const flips = stationEvents.filter(e => e.action === 'flip').length;
-      const reaches = stationEvents.filter(e => e.action === 'reach').length;
+      const reachEvents = stationEvents.filter(e => e.action === 'reach');
+      const reach0 = reachEvents.filter(e => e.state === p.states[0]).length;
+      const reach1 = reachEvents.filter(e => e.state === p.states[1]).length;
       const last = stationEvents[stationEvents.length - 1];
       const card = document.createElement('div');
       card.className = 'pattern-card';
       card.innerHTML = `
         <div class="station">${p.station}</div>
         <div class="stat-row"><span>Flips</span><span>${flips}</span></div>
-        <div class="stat-row"><span>Reaches</span><span>${reaches}</span></div>
+        <div class="stat-row"><span>Reached during ${p.states[0]}</span><span>${reach0}</span></div>
+        <div class="stat-row"><span>Reached during ${p.states[1]}</span><span>${reach1}</span></div>
         <div class="stat-row"><span>Last activity</span><span>${last ? timeAgo(last.ts) : '—'}</span></div>
       `;
       grid.appendChild(card);
@@ -592,8 +595,8 @@
     events.slice().reverse().slice(0, 12).forEach(e => {
       const row = document.createElement('div');
       row.className = 'update-row';
-      const verb = e.action === 'flip' ? 'flipped' : 'logged as reached for';
-      row.innerHTML = `<div class="date">${timeAgo(e.ts)}</div><div><h3>${e.station} ${verb}</h3></div>`;
+      const verb = e.action === 'flip' ? 'flipped to' : 'reached for during';
+      row.innerHTML = `<div class="date">${timeAgo(e.ts)}</div><div><h3>${e.station} ${verb} "${e.state || '—'}"</h3></div>`;
       feed.appendChild(row);
     });
   }
@@ -709,6 +712,8 @@
     if(reachBtn){
       const p = pucks.find(x => x.id === reachBtn.dataset.reach);
       p.reached += 1;
+      if(!p.reachedByState) p.reachedByState = [0, 0];
+      p.reachedByState[p.face] += 1;
       logEvent(p, 'reach');
       savePucks(pucks);
       renderPucks();
