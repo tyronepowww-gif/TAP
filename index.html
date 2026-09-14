@@ -166,7 +166,20 @@
     padding:0;
     align-self:flex-start;
   }
-  .puck-edit-form{
+  .puck-card .time-line{
+    font-size:0.78rem;
+    color:var(--rust);
+    margin-top:6px;
+  }
+  .puck-edit-form .check-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.82rem;
+    color:var(--ink);
+  }
+  .puck-edit-form .check-row input{width:auto;}
+
     margin-top:14px;
     display:flex;
     flex-direction:column;
@@ -209,6 +222,56 @@
     background:transparent;
   }
   .add-puck-card:hover{border-color:var(--ink); color:var(--ink);}
+
+  .select-row{
+    font-size:0.75rem;
+    color:var(--concrete-dark);
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .select-row input{width:auto;}
+  .puck-card.selected{
+    border-color:var(--rust);
+    background:rgba(156,61,46,0.06);
+  }
+  .bulk-bar{
+    display:none;
+    align-items:center;
+    gap:14px;
+    padding:12px 16px;
+    border:1px solid var(--ink);
+    background:var(--paper);
+    margin-bottom:16px;
+    font-size:0.85rem;
+  }
+  .bulk-bar.active{display:flex;}
+  .bulk-bar button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.8rem;
+    border:1px solid var(--ink);
+    background:transparent;
+    padding:6px 12px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .bulk-bar button.danger{
+    background:var(--rust);
+    border-color:var(--rust);
+    color:var(--paper);
+  }
+  .delete-btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.78rem;
+    border:1px solid var(--rust);
+    background:transparent;
+    color:var(--rust);
+    padding:6px 12px;
+    cursor:pointer;
+    align-self:flex-start;
+    margin-top:4px;
+  }
 
   /* ---- Updates / build log ---- */
   .updates-list{border-top:1px solid var(--line);}
@@ -320,6 +383,11 @@
     font-size:0.82rem;
     color:var(--concrete);
   }
+  .breath-stats{
+    margin-top:6px;
+    font-size:0.78rem;
+    color:var(--concrete-dark);
+  }
 </style>
 </head>
 <body>
@@ -328,7 +396,7 @@
   <div class="puck-hero"></div>
   <div class="wrap">
     <h1>Taps</h1>
-    <p class="lede">1.Scroll down, tap start, breathe. 2. Scroll down further, arrive at display pucks, press(flip) it. </p>
+    <p class="lede">1. Scroll down, tap start, breathe. 2. Scroll down further, arrive at the pucks, press (flip) one.</p>
     <div class="rule">
       The puck changes because <strong>the human changed it.</strong><br>
       The display only reveals the state.
@@ -353,6 +421,7 @@
           <button id="breath-stop">Stop</button>
         </div>
         <div class="breath-count" id="breath-count">0 cycles</div>
+        <div class="breath-stats" id="breath-stats">All-time: 0 cycles · 0m</div>
       </div>
       <div>
         <p>In for 4. Hold for 4. Out for 6. The exhale is longer than the inhale on purpose.</p>
@@ -362,33 +431,6 @@
   </div>
 </div>
 
-<section class="tight">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">What it is</span>
-      <h2>Not a smart device</h2>
-    </div>
-    <p>Taps is a heavy, hand-cast puck — concrete and steel BBs, no battery — that sits at a threshold in your day and holds one of two states. You flip it by hand. Nothing lights up. Nothing syncs. The only intelligence in the system is the one deciding to turn it over.</p>
-    <p>The test isn't whether it's useful. It's whether it earns a permanent place — whether removing it leaves a gap you reach for before you remember why.</p>
-  </div>
-</section>
-
-<div class="filter-block">
-  <div class="wrap">
-    <div class="filter-lines">
-      <span class="a">The object changes because the human changed it.</span><br>
-      <span class="b">The display only reveals the state.</span>
-    </div>
-    <p class="cap">That's the whole filter.</p>
-  </div>
-</div>
-
-<section class="tight">
-  <div class="wrap">
-    <p>A flip is a small, complete action — a shape for a moment, nothing more claimed than that.</p>
-  </div>
-</section>
-
 <section>
   <div class="wrap">
     <div class="section-head">
@@ -396,8 +438,13 @@
       <h2>Five pucks, five thresholds</h2>
     </div>
     <p>Tap a puck to flip it — the state holds until you flip it again. Edit a puck's name or its two states, or add another for a spot that isn't covered yet.</p>
+    <div class="bulk-bar" id="bulk-bar">
+      <span id="bulk-count">0 selected</span>
+      <button id="bulk-delete-btn" class="danger">Delete selected</button>
+      <button id="bulk-clear-btn">Clear</button>
+    </div>
     <div class="pucks" id="pucks"></div>
-    <p class="puck-note">Reached = you missed notice, wanted to TAP, or did not remember to TAP.</p>
+    <p class="puck-note">Reached = you missed notice, wanted to TAP, or did not remember to TAP. The original five can't be deleted — added pucks can be, one at a time or in a batch.</p>
   </div>
 </section>
 
@@ -416,6 +463,33 @@
   </div>
 </section>
 
+<section class="tight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">What it is</span>
+      <h2>Five states, tapped by hand</h2>
+    </div>
+    <p>This page is the puck system, not a preview of one. Each disc holds one of two states, and the only way that state changes is by tapping it yourself. Nothing here updates on its own — no timer, no reminder, no notification deciding for you.</p>
+    <p>The pattern log above is how you see what you did without tracking it by hand: which puck you keep coming back to, which one goes quiet, and which one you reach for when it doesn't respond.</p>
+  </div>
+</section>
+
+<div class="filter-block">
+  <div class="wrap">
+    <div class="filter-lines">
+      <span class="a">The object changes because the human changed it.</span><br>
+      <span class="b">The display only reveals the state.</span>
+    </div>
+    <p class="cap">That's the whole filter, applied to this page: every state you see exists because you tapped it. If a puck earns a place in your day, it'll be because you keep flipping it — the log will show that. If it doesn't, the log shows that too.</p>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="wrap">
+    <p>A flip is a small, complete action — a shape for a moment, nothing more claimed than that.</p>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     Taps — a ritual object, not a product. Built primitive first.
@@ -425,11 +499,11 @@
 <script>
   // ---- Pucks: real state, flipped by tapping, fully editable ----
   const DEFAULT_PUCKS = [
-    { id:'door', station:'Door', states:['HERE','GONE'], face:0, flips:0, reached:0 },
-    { id:'desk', station:'Desk', states:['OFF','ON'], face:0, flips:0, reached:0 },
-    { id:'bedside', station:'Bedside', states:['OPEN','CLOSED'], face:0, flips:0, reached:0 },
-    { id:'bag', station:'Bag', states:['REST','TRAIN'], face:0, flips:0, reached:0 },
-    { id:'blank', station:'Unassigned', states:['A','B'], face:0, flips:0, reached:0 }
+    { id:'door', station:'Door', states:['HERE','GONE'], face:0, flips:0, reached:0, isDefault:true },
+    { id:'desk', station:'Desk', states:['OFF','ON'], face:0, flips:0, reached:0, isDefault:true },
+    { id:'bedside', station:'Bedside', states:['OPEN','CLOSED'], face:0, flips:0, reached:0, isDefault:true },
+    { id:'bag', station:'Bag', states:['REST','TRAIN'], face:0, flips:0, reached:0, isDefault:true },
+    { id:'blank', station:'Unassigned', states:['A','B'], face:0, flips:0, reached:0, isDefault:true }
   ];
   const STORE_KEY = 'taps-pucks-v2';
 
@@ -477,6 +551,17 @@
     return days + (days === 1 ? ' day ago' : ' days ago');
   }
 
+  function formatDuration(ms){
+    const mins = Math.floor(ms / 60000);
+    if(mins < 60) return mins + 'm';
+    const hrs = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    if(hrs < 24) return hrs + 'h ' + remMins + 'm';
+    const days = Math.floor(hrs / 24);
+    const remHrs = hrs % 24;
+    return days + 'd ' + remHrs + 'h';
+  }
+
   function renderPatterns(){
     const grid = document.getElementById('pattern-grid');
     const feed = document.getElementById('activity-feed');
@@ -513,16 +598,29 @@
     });
   }
 
+  let selectedIds = new Set();
+
   function renderPucks(){
     const container = document.getElementById('pucks');
     container.innerHTML = '';
 
     pucks.forEach(p => {
       const card = document.createElement('div');
-      card.className = 'puck-card';
+      card.className = 'puck-card' + (selectedIds.has(p.id) ? ' selected' : '');
+
+      const selectRow = !p.isDefault
+        ? `<label class="select-row">
+             <input type="checkbox" data-select="${p.id}" ${selectedIds.has(p.id) ? 'checked' : ''}>
+             Select
+           </label>`
+        : '';
 
       if(editingId === p.id){
+        const deleteBtn = !p.isDefault
+          ? `<button class="delete-btn" data-delete="${p.id}">Delete this puck</button>`
+          : '';
         card.innerHTML = `
+          ${selectRow}
           <div class="puck-disc" data-id="${p.id}">${p.states[p.face]}</div>
           <div class="puck-edit-form">
             <input type="text" data-field="station" data-id="${p.id}" value="${p.station}" placeholder="Station name">
@@ -530,11 +628,20 @@
               <input type="text" data-field="state0" data-id="${p.id}" value="${p.states[0]}" placeholder="State A">
               <input type="text" data-field="state1" data-id="${p.id}" value="${p.states[1]}" placeholder="State B">
             </div>
+            <label class="check-row">
+              <input type="checkbox" data-field="trackTime" data-id="${p.id}" ${p.trackTime ? 'checked' : ''}>
+              Time Puck — track how long it stays in each state
+            </label>
             <button data-save="${p.id}">Save</button>
+            ${deleteBtn}
           </div>
         `;
       } else {
+        const timeLine = p.trackTime
+          ? `<div class="time-line">In "${p.states[p.face]}" for ${formatDuration(Date.now() - (p.lastFlipTs || Date.now()))} · page open ${formatDuration(p.visibleMs || 0)} of that (±30s)</div>`
+          : '';
         card.innerHTML = `
+          ${selectRow}
           <div class="puck-disc" data-id="${p.id}">${p.states[p.face]}</div>
           <div class="station">${p.station}</div>
           <div class="pair">${p.states[0]} / ${p.states[1]}</div>
@@ -542,6 +649,7 @@
             <span>${p.flips} flip${p.flips === 1 ? '' : 's'}</span>
             <span>${p.reached} reach${p.reached === 1 ? '' : 'es'}</span>
           </div>
+          ${timeLine}
           <button class="reach-btn" data-reach="${p.id}">Log a reach</button>
           <button class="edit-btn" data-edit="${p.id}">Edit name / states</button>
         `;
@@ -554,6 +662,28 @@
     addCard.id = 'add-puck-btn';
     addCard.textContent = '+ Add a puck';
     container.appendChild(addCard);
+
+    renderBulkBar();
+  }
+
+  function renderBulkBar(){
+    const bar = document.getElementById('bulk-bar');
+    const count = document.getElementById('bulk-count');
+    if(selectedIds.size > 0){
+      bar.classList.add('active');
+      count.textContent = selectedIds.size + (selectedIds.size === 1 ? ' selected' : ' selected');
+    } else {
+      bar.classList.remove('active');
+    }
+  }
+
+  function deletePuck(id){
+    pucks = pucks.filter(x => x.id !== id);
+    selectedIds.delete(id);
+    savePucks(pucks);
+    if(editingId === id) editingId = null;
+    renderPucks();
+    renderPatterns();
   }
 
   document.addEventListener('click', (e) => {
@@ -565,6 +695,8 @@
       setTimeout(() => {
         p.face = p.face === 0 ? 1 : 0;
         p.flips += 1;
+        p.lastFlipTs = Date.now();
+        p.visibleMs = 0;
         logEvent(p, 'flip');
         savePucks(pucks);
         renderPucks();
@@ -600,9 +732,12 @@
       const station = form.querySelector('input[data-field="station"]').value.trim();
       const state0 = form.querySelector('input[data-field="state0"]').value.trim();
       const state1 = form.querySelector('input[data-field="state1"]').value.trim();
+      const trackTime = form.querySelector('input[data-field="trackTime"]').checked;
       if(station) p.station = station;
       if(state0) p.states[0] = state0;
       if(state1) p.states[1] = state1;
+      p.trackTime = trackTime;
+      if(trackTime && !p.lastFlipTs){ p.lastFlipTs = Date.now(); p.visibleMs = 0; }
       if(station && station !== oldStation){
         const events = loadEvents();
         events.forEach(ev => { if(ev.station === oldStation) ev.station = station; });
@@ -618,22 +753,106 @@
     const addBtn = e.target.closest('#add-puck-btn');
     if(addBtn){
       const id = 'puck-' + Date.now();
-      pucks.push({ id, station:'New station', states:['A','B'], face:0, flips:0, reached:0 });
+      pucks.push({ id, station:'New station', states:['A','B'], face:0, flips:0, reached:0, isDefault:false });
       editingId = id;
       savePucks(pucks);
       renderPucks();
       renderPatterns();
+      return;
+    }
+
+    const deleteBtn = e.target.closest('button[data-delete]');
+    if(deleteBtn){
+      const id = deleteBtn.dataset.delete;
+      const p = pucks.find(x => x.id === id);
+      if(p && confirm(`Delete "${p.station}"? Its flip history stays in the activity log, but the puck itself is gone for good.`)){
+        deletePuck(id);
+      }
+      return;
+    }
+
+    const bulkDeleteBtn = e.target.closest('#bulk-delete-btn');
+    if(bulkDeleteBtn){
+      const n = selectedIds.size;
+      if(n > 0 && confirm(`Delete ${n} selected puck${n === 1 ? '' : 's'}? This can't be undone.`)){
+        Array.from(selectedIds).forEach(id => {
+          pucks = pucks.filter(x => x.id !== id);
+        });
+        selectedIds.clear();
+        savePucks(pucks);
+        renderPucks();
+        renderPatterns();
+      }
+      return;
+    }
+
+    const bulkClearBtn = e.target.closest('#bulk-clear-btn');
+    if(bulkClearBtn){
+      selectedIds.clear();
+      renderPucks();
+      return;
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const selectBox = e.target.closest('input[data-select]');
+    if(selectBox){
+      const id = selectBox.dataset.select;
+      if(selectBox.checked) selectedIds.add(id);
+      else selectedIds.delete(id);
+      renderPucks();
     }
   });
 
   renderPucks();
   renderPatterns();
 
+  // Time Pucks: separate "elapsed since flip" from "time the page was actually
+  // open to observe it" — uses the standard Page Visibility API, no permissions,
+  // nothing sent anywhere. Ticks every 30s, only adds to visibleMs while the
+  // tab is actually in the foreground.
+  let lastTickTs = Date.now();
+  setInterval(() => {
+    const now = Date.now();
+    const delta = now - lastTickTs;
+    lastTickTs = now;
+    if(document.visibilityState === 'visible'){
+      let changed = false;
+      pucks.forEach(p => {
+        if(p.trackTime){
+          p.visibleMs = (p.visibleMs || 0) + delta;
+          changed = true;
+        }
+      });
+      if(changed) savePucks(pucks);
+    }
+    if(editingId === null) renderPucks();
+  }, 30000);
+
   // ---- Breath widget: 4 in / 4 hold / 6 out ----
   const disc = document.getElementById('breath-disc');
   const countEl = document.getElementById('breath-count');
+  const statsEl = document.getElementById('breath-stats');
   let breathTimer = null;
   let cycles = 0;
+  let sessionStartTs = null;
+
+  const BREATH_STORE_KEY = 'taps-breath-stats-v1';
+  function loadBreathStats(){
+    try{
+      const raw = localStorage.getItem(BREATH_STORE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { totalCycles:0, totalMs:0 };
+  }
+  function saveBreathStats(stats){
+    try{ localStorage.setItem(BREATH_STORE_KEY, JSON.stringify(stats)); }catch(e){}
+  }
+  function renderBreathStats(){
+    const stats = loadBreathStats();
+    statsEl.textContent = `All-time: ${stats.totalCycles} cycle${stats.totalCycles === 1 ? '' : 's'} · ${formatDuration(stats.totalMs)}`;
+  }
+  renderBreathStats();
 
   function setPhase(phase, label, ms){
     disc.className = 'breath-disc ' + phase;
@@ -650,18 +869,30 @@
     if(!breathTimer) return;
     cycles += 1;
     countEl.textContent = cycles + (cycles === 1 ? ' cycle' : ' cycles');
+    const stats = loadBreathStats();
+    stats.totalCycles += 1;
+    saveBreathStats(stats);
+    renderBreathStats();
     if(breathTimer) runCycle();
   }
 
   document.getElementById('breath-start').addEventListener('click', () => {
     if(breathTimer) return;
     breathTimer = true;
+    sessionStartTs = Date.now();
     runCycle();
   });
 
   document.getElementById('breath-stop').addEventListener('click', () => {
     breathTimer = null;
     setPhase('', 'HOLD', 0);
+    if(sessionStartTs){
+      const stats = loadBreathStats();
+      stats.totalMs += (Date.now() - sessionStartTs);
+      saveBreathStats(stats);
+      renderBreathStats();
+      sessionStartTs = null;
+    }
   });
 </script>
 <!-- UNIVERSAL LOCAL DATA PORTABILITY — SMALL EXPANDER -->
