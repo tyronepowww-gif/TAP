@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taps — the object changes because you changed it</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1a17;
+    --concrete:#8f8b81;
+    --concrete-dark:#5c584f;
+    --paper:#ece7db;
+    --rust:#9c3d2e;
+    --line: rgba(28,26,23,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Fraunces', serif; font-weight:500; letter-spacing:-0.01em;}
+  a{color:inherit;}
+  .wrap{max-width:720px; margin:0 auto; padding:0 24px;}
+
+  /* ---- Hero ---- */
+  .hero{
+    min-height:88vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    background:var(--ink);
+    color:var(--paper);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero .wrap{max-width:760px;}
+  .hero h1{
+    font-size:clamp(2.6rem, 8vw, 5rem);
+    line-height:0.98;
+    max-width:11ch;
+  }
+  .hero p.lede{
+    margin-top:28px;
+    font-size:1.15rem;
+    max-width:36ch;
+    color:var(--concrete);
+  }
+  .hero .rule{
+    margin-top:26px;
+    padding-top:26px;
+    border-top:1px solid rgba(236,231,219,0.22);
+    font-size:0.95rem;
+    color:var(--concrete);
+    max-width:44ch;
+  }
+  .hero .rule strong{color:var(--paper); font-weight:600;}
+  .puck-hero{
+    position:absolute;
+    right:-60px;
+    bottom:-60px;
+    width:280px;
+    height:280px;
+    border-radius:50%;
+    background:conic-gradient(var(--concrete-dark) 0deg 180deg, var(--concrete) 180deg 360deg);
+    opacity:0.35;
+  }
+
+  /* ---- Section rhythm ---- */
+  section{padding:88px 0;}
+  section.tight{padding:56px 0;}
+  .section-head{margin-bottom:40px;}
+  .section-head h2{font-size:1.8rem;}
+  .section-head .kicker{
+    display:block;
+    font-size:0.85rem;
+    color:var(--concrete-dark);
+    margin-bottom:10px;
+  }
+  p{max-width:62ch;}
+  p + p{margin-top:14px;}
+
+  /* ---- Filter block ---- */
+  .filter-block{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .filter-block .wrap{padding:64px 24px;}
+  .filter-lines{font-family:'Fraunces', serif; font-size:1.5rem; line-height:1.5;}
+  .filter-lines .a{color:var(--paper);}
+  .filter-lines .b{color:var(--concrete);}
+  .filter-block .cap{
+    margin-top:24px;
+    color:var(--concrete);
+    font-size:0.95rem;
+    max-width:52ch;
+  }
+
+  /* ---- Puck grid ---- */
+  .pucks{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:18px;
+    margin-top:8px;
+  }
+  .puck-card{
+    border:1px solid var(--line);
+    padding:20px;
+    background:rgba(255,255,255,0.28);
+  }
+  .puck-disc{
+    width:64px; height:64px; border-radius:50%;
+    background:linear-gradient(135deg, var(--concrete-dark), var(--concrete));
+    margin-bottom:16px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.7rem; color:var(--paper); font-weight:600;
+    box-shadow: inset 0 0 0 3px rgba(28,26,23,0.15);
+  }
+  .puck-card .station{font-size:0.85rem; color:var(--concrete-dark); margin-bottom:4px;}
+  .puck-card .states{font-family:'Fraunces', serif; font-size:1.15rem;}
+
+  /* ---- Log widget ---- */
+  .log-widget{
+    border:1px solid var(--line);
+    padding:28px;
+    background:rgba(255,255,255,0.35);
+  }
+  .log-row{
+    display:grid;
+    grid-template-columns:1fr auto auto auto;
+    gap:10px;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .log-row:last-child{border-bottom:none;}
+  .log-row .name{font-weight:600;}
+  .log-row button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.8rem;
+    border:1px solid var(--ink);
+    background:transparent;
+    padding:6px 10px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .log-row button.active{background:var(--ink); color:var(--paper);}
+  .log-row .count{font-size:0.8rem; color:var(--concrete-dark); text-align:right; min-width:64px;}
+  .log-add{
+    display:flex; gap:10px; margin-top:20px;
+  }
+  .log-add input{
+    flex:1;
+    padding:10px 12px;
+    border:1px solid var(--ink);
+    background:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.95rem;
+  }
+  .log-add button{
+    padding:10px 18px;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    cursor:pointer;
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+  .log-note{font-size:0.82rem; color:var(--concrete-dark); margin-top:16px;}
+
+  /* ---- Updates / build log ---- */
+  .updates-list{border-top:1px solid var(--line);}
+  .update-row{
+    padding:20px 0;
+    border-bottom:1px solid var(--line);
+    display:grid;
+    grid-template-columns:110px 1fr;
+    gap:18px;
+  }
+  .update-row .date{font-size:0.85rem; color:var(--concrete-dark); padding-top:2px;}
+  .update-row h3{font-size:1.05rem; font-weight:600; font-family:'IBM Plex Sans', sans-serif; margin-bottom:6px;}
+  @media (max-width:520px){
+    .update-row{grid-template-columns:1fr;}
+    .update-row .date{padding-top:0;}
+  }
+
+  footer{
+    padding:48px 0 64px;
+    color:var(--concrete-dark);
+    font-size:0.85rem;
+    border-top:1px solid var(--line);
+  }
+
+  /* ---- Reset / breath section ---- */
+  .reset-block{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .reset-block .wrap{padding:88px 24px;}
+  .reset-block .section-head .kicker{color:var(--concrete);}
+  .reset-block p{color:var(--concrete); max-width:52ch;}
+  .reset-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:40px;
+    margin-top:36px;
+    align-items:center;
+  }
+  @media (min-width:640px){
+    .reset-grid{grid-template-columns:220px 1fr;}
+  }
+  .breath-disc-wrap{
+    display:flex;
+    justify-content:center;
+  }
+  .breath-disc{
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--concrete-dark), var(--concrete));
+    box-shadow: inset 0 0 0 3px rgba(236,231,219,0.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.85rem;
+    letter-spacing:0.02em;
+    color:var(--paper);
+    transition: transform 4s ease-in-out;
+    transform: scale(1);
+  }
+  .breath-disc.inhale{transform:scale(1.28); transition-duration:4s;}
+  .breath-disc.hold{transform:scale(1.28); transition-duration:0.2s;}
+  .breath-disc.exhale{transform:scale(1); transition-duration:6s;}
+  .breath-controls{
+    display:flex;
+    gap:12px;
+    margin-top:24px;
+  }
+  .breath-controls button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.85rem;
+    border:1px solid var(--paper);
+    background:transparent;
+    color:var(--paper);
+    padding:10px 18px;
+    cursor:pointer;
+  }
+  .breath-controls button.active{background:var(--paper); color:var(--ink);}
+  .breath-count{
+    margin-top:14px;
+    font-size:0.82rem;
+    color:var(--concrete);
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="puck-hero"></div>
+  <div class="wrap">
+    <h1>Taps</h1>
+    <p class="lede">A concrete object with two states. You flip it. It doesn't tell you anything you didn't already decide.</p>
+    <div class="rule">
+      The object changes because <strong>the human changed it.</strong><br>
+      The display only reveals the state.
+    </div>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">What it is</span>
+      <h2>Not a smart device</h2>
+    </div>
+    <p>Taps is a heavy, hand-cast puck — concrete and steel BBs, no battery — that sits at a threshold in your day and holds one of two states. You flip it by hand. Nothing lights up. Nothing syncs. The only intelligence in the system is the one deciding to turn it over.</p>
+    <p>The test isn't whether it's useful. It's whether it earns a permanent place — whether removing it leaves a gap you reach for before you remember why.</p>
+  </div>
+</section>
+
+<div class="filter-block">
+  <div class="wrap">
+    <div class="filter-lines">
+      <span class="a">The object changes because the human changed it.</span><br>
+      <span class="b">The display only reveals the state.</span>
+    </div>
+    <p class="cap">That's the whole filter. Any future version — e-ink, sensors, anything — has to hold this line, or it becomes a screen wearing a rock's face.</p>
+  </div>
+</div>
+
+<section class="tight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Why it works</span>
+      <h2>Grounding, not gamification</h2>
+    </div>
+    <p>A physical flip is a small act of embodied cognition — the hand does something the mind can register as closure. That's the same mechanism behind a lot of quiet regulation tools: a light switch, a door lock check, a worry stone. The object doesn't do the regulating. It gives the moment a shape you can complete.</p>
+    <p>Placing it at a threshold — the door, the desk, the bed — borrows from how habits actually form: tied to a location and a transition, not a reminder or a willpower decision. You're not being told to focus or rest. You're marking that you already decided to.</p>
+    <p>This isn't a treatment and it doesn't replace one. It's a low-stakes way to add a small, repeatable moment of agency to an ordinary transition — useful on its own terms, whether or not anything is "wrong" to begin with.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">The prototype</span>
+      <h2>Five pucks, five thresholds</h2>
+    </div>
+    <p>Same mold. Same weight. Different jobs. Placed where a real transition already happens in the day — not clustered on one shelf.</p>
+    <div class="pucks">
+      <div class="puck-card">
+        <div class="puck-disc">DOOR</div>
+        <div class="station">Door</div>
+        <div class="states">HERE / GONE</div>
+      </div>
+      <div class="puck-card">
+        <div class="puck-disc">DESK</div>
+        <div class="station">Desk</div>
+        <div class="states">OFF / ON</div>
+      </div>
+      <div class="puck-card">
+        <div class="puck-disc">BED</div>
+        <div class="station">Bedside</div>
+        <div class="states">OPEN / CLOSED</div>
+      </div>
+      <div class="puck-card">
+        <div class="puck-disc">BAG</div>
+        <div class="station">Bag</div>
+        <div class="states">REST / TRAIN</div>
+      </div>
+      <div class="puck-card">
+        <div class="puck-disc">?</div>
+        <div class="station">Unassigned</div>
+        <div class="states">let it tell you</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">The 14-day log</span>
+      <h2>Track the gap, not the novelty</h2>
+    </div>
+    <p>For each puck: did you flip it, ignore it, or reach for it when it wasn't there? Tap to log today's entry — this stays on this device, no account, no sync.</p>
+
+    <div class="log-widget">
+      <div id="log-rows"></div>
+      <div class="log-add">
+        <input id="log-add-input" type="text" placeholder="Add a puck / station (e.g. Kitchen)">
+        <button id="log-add-btn">Add</button>
+      </div>
+      <p class="log-note">Flipped = you turned it over. Reached = you noticed its absence or wanted it and it wasn't there. Counts reset only if you clear them.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Build log</span>
+      <h2>Updates</h2>
+    </div>
+    <div class="updates-list" id="updates-list"></div>
+  </div>
+</section>
+
+<div class="reset-block">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Before you flip</span>
+      <h2>Reset</h2>
+    </div>
+    <p>The puck asks for one decision, not a stream of them. This is the same idea in your body: one slow cycle of breath, long enough to move you from reacting to choosing, before you touch the object.</p>
+    <div class="reset-grid">
+      <div>
+        <div class="breath-disc-wrap">
+          <div class="breath-disc" id="breath-disc">HOLD</div>
+        </div>
+        <div class="breath-controls">
+          <button id="breath-start">Start</button>
+          <button id="breath-stop">Stop</button>
+        </div>
+        <div class="breath-count" id="breath-count">0 cycles</div>
+      </div>
+      <div>
+        <p>In for 4. Hold for 4. Out for 6. The exhale is longer than the inhale on purpose — it's the part that tells your nervous system the moment has passed and you're safe to act deliberately, not reflexively.</p>
+        <p>Run it for three to five cycles. Then flip the puck, or don't. Either way, you'll be choosing instead of reaching.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    Taps — a ritual object, not a product. Built primitive first.
+  </div>
+</footer>
+
+<script>
+  // ---- Log widget (localStorage) ----
+  const DEFAULT_PUCKS = ['Door','Desk','Bedside','Bag'];
+  const STORE_KEY = 'taps-log-v1';
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    const initial = {};
+    DEFAULT_PUCKS.forEach(p => initial[p] = {flipped:0, ignored:0, reached:0});
+    return initial;
+  }
+  function saveState(state){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  let state = loadState();
+
+  function render(){
+    const container = document.getElementById('log-rows');
+    container.innerHTML = '';
+    Object.keys(state).forEach(name => {
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      row.innerHTML = `
+        <div class="name">${name}</div>
+        <button data-name="${name}" data-action="flipped">Flipped</button>
+        <button data-name="${name}" data-action="ignored">Ignored</button>
+        <button data-name="${name}" data-action="reached">Reached</button>
+      `;
+      container.appendChild(row);
+
+      const countEl = document.createElement('div');
+      countEl.className = 'count';
+      const s = state[name];
+      countEl.textContent = `${s.flipped} flip · ${s.ignored} skip · ${s.reached} reach`;
+      row.appendChild(countEl);
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    const name = btn.dataset.name;
+    const action = btn.dataset.action;
+    if(!state[name]) state[name] = {flipped:0, ignored:0, reached:0};
+    state[name][action] += 1;
+    saveState(state);
+    render();
+  });
+
+  document.getElementById('log-add-btn').addEventListener('click', () => {
+    const input = document.getElementById('log-add-input');
+    const name = input.value.trim();
+    if(!name) return;
+    if(!state[name]) state[name] = {flipped:0, ignored:0, reached:0};
+    input.value = '';
+    saveState(state);
+    render();
+  });
+
+  render();
+
+  // ---- Build log / updates ----
+  // Edit this array directly to post new updates — no CMS, no feed.
+  const UPDATES = [
+    { date:'Day 0', title:'Five pucks cast', body:'Same mold, same mix, same cure time. Weighed dry before placement to remove weight as a confound.' },
+    { date:'Day 0', title:'Placed at thresholds', body:'Door, desk, bedside, bag, and one unlabeled puck left to declare its own job.' },
+    { date:'Day 14', title:'Log review', body:'Whichever puck leaves a gap when pulled is the candidate for an e-ink version. The rest stay concrete.' }
+  ];
+
+  const list = document.getElementById('updates-list');
+  UPDATES.forEach(u => {
+    const row = document.createElement('div');
+    row.className = 'update-row';
+    row.innerHTML = `<div class="date">${u.date}</div><div><h3>${u.title}</h3><p>${u.body}</p></div>`;
+    list.appendChild(row);
+  });
+
+  // ---- Breath widget: 4 in / 4 hold / 6 out ----
+  const disc = document.getElementById('breath-disc');
+  const countEl = document.getElementById('breath-count');
+  let breathTimer = null;
+  let cycles = 0;
+
+  function setPhase(phase, label, ms){
+    disc.className = 'breath-disc ' + phase;
+    disc.textContent = label;
+    return new Promise(res => setTimeout(res, ms));
+  }
+
+  async function runCycle(){
+    await setPhase('inhale', 'IN', 4000);
+    if(!breathTimer) return;
+    await setPhase('hold', 'HOLD', 4000);
+    if(!breathTimer) return;
+    await setPhase('exhale', 'OUT', 6000);
+    if(!breathTimer) return;
+    cycles += 1;
+    countEl.textContent = cycles + (cycles === 1 ? ' cycle' : ' cycles');
+    if(breathTimer) runCycle();
+  }
+
+  document.getElementById('breath-start').addEventListener('click', () => {
+    if(breathTimer) return;
+    breathTimer = true;
+    runCycle();
+  });
+
+  document.getElementById('breath-stop').addEventListener('click', () => {
+    breathTimer = null;
+    setPhase('', 'HOLD', 0);
+  });
+</script>
+
+</body>
+</html>
